@@ -1,21 +1,43 @@
 import torch
 
+def print_layer_types(model, indent=0):
+    for layer in model.children():
+        print(' ' * indent + str(type(layer)))
+        print_layer_types(layer, indent + 2)
+
+def print_layer_device(model):
+    for name, param in model.named_parameters():
+        # breakpoint()
+        print(name, param.device)
+
+def offload_by_layer_type(model, layer_type, device="cpu"):
+    for layer in model.children():
+        if isinstance(layer, layer_type):
+            layer.to(device)
+        offload_by_layer_type(layer, layer_type, device)
 
 def download_model():
     ## import a model from torch.hub
     model = torch.hub.load('pytorch/vision:v0.6.0', 'resnet18', pretrained=True)
     model.eval()
+    return model
     print("Model loaded successfully")
 
     # print name of each layer
-    for name, param in model.named_parameters():
-        print(name)
-    
-    return model
 
+    # print_layer_types(model)
+
+
+    # offload_by_layer_type(model, torch.nn.Conv2d, "cpu")
+
+    # print_layer_types(model)
 
 if __name__ == "__main__":
-    download_model()
+    model = download_model()
+    print_layer_device(model)
+    model.cuda()
+    print_layer_device(model)
+
     print("Done!")
 
 
