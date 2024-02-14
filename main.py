@@ -16,6 +16,9 @@ def offload_by_layer_type(model, layer_type, device="cpu"):
             layer.to(device)
         offload_by_layer_type(layer, layer_type, device)
 
+def jit_offload(model, device="cpu"):
+    return torch.jit.script(model).to(device
+
 def download_model():
     ## import a model from torch.hub
     model = torch.hub.load('pytorch/vision:v0.6.0', 'resnet18', pretrained=True)
